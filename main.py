@@ -1,51 +1,56 @@
 from fpdf import FPDF
 import pandas as pd
 
-# Create a PDF object with Portrait orientation, millimeter units, and A4 paper size
+# Initialize a PDF object with Portrait orientation, millimeter units, and A4 size
 pdf = FPDF(orientation="P", unit="mm", format="A4")
 
-# Disable automatic page breaks to manually control layout
+# Turn off automatic page breaks to control layout manually
 pdf.set_auto_page_break(auto=False, margin=0)
 
-# Read data from a CSV file, which should contain "Topic" and "Pages" columns
+# Load topic data from a CSV file (must contain 'Topic' and 'Pages' columns)
 df = pd.read_csv("topics.csv")
 
-# Loop through each row in the DataFrame
+# Loop through each topic in the DataFrame
 for index, row in df.iterrows():
     # Add the first page for the current topic
     pdf.add_page()
 
-    # Set font for the topic title (Times Bold, size 24)
-    pdf.set_font(family="Times", style="B", size=24)
-    pdf.set_text_color(0, 0, 0)  # Set text color to black
+    # Set font for the topic title (Times, Bold, size 30)
+    pdf.set_font(family="Times", style="B", size=30)
+    pdf.set_text_color(0, 0, 0)  # Black text
 
-    # Write the topic title at the top-left and move to the next line
-    pdf.cell(w=0, h=12, txt=row["Topic"], align="L", ln=1)
+    # Write the topic title at the top-left corner and move to the next line
+    pdf.cell(w=0, h=18, txt=row["Topic"], align="L", ln=1)
 
-    # Draw a horizontal line below the title (Y = 21 mm)
-    pdf.line(10, 21, 200, 21)
+    # Draw horizontal lines across the page to simulate writing lines
+    for y in range(25, 285, 10):  # Start from Y=25 to Y=275 with 10mm spacing
+        pdf.line(10, y, 200, y)   # Line from left (x=10) to right (x=200)
 
-    # Define Y-position for the footer (a bit above the bottom of the page)
+    # Set Y-position for the footer line (just above page bottom)
     footer_y = 285
 
-    # Draw a line just above the footer text
+    # Draw a horizontal line above the footer text
     pdf.line(10, footer_y, 200, footer_y)
 
-    # Position the cursor to footer Y-position
+    # Move the cursor to the footer position
     pdf.set_y(footer_y)
 
-    # Set footer font (Times Italic, size 15) and grey color
+    # Set font and color for the footer (Times Italic, grey color)
     pdf.set_font(family="Times", style="I", size=15)
     pdf.set_text_color(100, 100, 100)
 
-    # Display the topic name in the footer, aligned to the right
+    # Write the topic name in the footer, aligned to the right
     pdf.cell(w=0, h=10, txt=row["Topic"], align="R")
 
-    # Create additional blank pages for the topic (if more than 1 page)
+    # Add additional pages if the topic spans more than one page
     for i in range(row["Pages"] - 1):
         pdf.add_page()
 
-        # Repeat footer setup on each additional page
+        # Draw writing lines on the additional page
+        for y in range(25, 285, 10):
+            pdf.line(10, y, 200, y)
+
+        # Footer setup for the additional page
         footer_y = 285
         pdf.line(10, footer_y, 200, footer_y)
         pdf.set_y(footer_y)
@@ -53,5 +58,5 @@ for index, row in df.iterrows():
         pdf.set_text_color(100, 100, 100)
         pdf.cell(w=0, h=10, txt=row["Topic"], align="R")
 
-# Export the final PDF to a file named "output.pdf"
+# Generate and save the final PDF file
 pdf.output("output.pdf")
